@@ -352,3 +352,16 @@ view ApprovedMarketplaceProduct {
   marketplaceProduct String
   authorizationToken String?
 }
+
+model MarketplaceCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  icon        String?
+  description String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime @default(now()) @updatedAt @db.Timestamptz(3)
+}

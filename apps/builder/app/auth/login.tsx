@@ -58,11 +58,23 @@ export const Login = ({
           },
         }}
       >
-        <WebstudioIcon size={48} />
-        <Text variant="brandSectionTitle" as="h1" align="center">
-          Welcome to Webstudio
-        </Text>
+        {/* <WebstudioIcon size={48} /> */}
 
+        <img
+          src="/images/Q_Logo.png"
+          alt="Quantumberg Logo"
+          width={48}
+          height={48}
+          style={{
+            width: 48,
+            height: 48,
+            objectFit: "contain",
+          }}
+        />
+
+        <Text variant="brandSectionTitle" as="h1" align="center">
+          Welcome to Quantumberg Tech Pvt Ltd
+        </Text>
         <TooltipProvider>
           <Flex direction="column" gap="3" css={{ width: "100%" }}>
             <Form method="post" style={{ display: "contents" }}>

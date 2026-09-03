@@ -53,7 +53,18 @@ export const MenuButton = () => {
       <DropdownMenuTrigger>
         <span className={innerContainerStyle()}>
           <span className={faceStyle({ front: true })}>
-            <WebstudioIcon size={22} />
+            {/* <WebstudioIcon size={22} /> */}
+            <img
+              src="/images/Q_Logo.png"
+              alt="Quantumberg Logo"
+              width={22}
+              height={22}
+              style={{
+                width: 22,
+                height: 22,
+                objectFit: "contain",
+              }}
+            />
           </span>
           <span className={faceStyle({ back: true })}>
             <MenuIcon size={22} />

@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "generate": "PRISMA_BINARY_TARGET=${PRISMA_BINARY_TARGET:-'[\"native\"]'} prisma generate",
+    "build": "pnpm generate && rm -rf lib && pnpm exec tsc --project tsconfig.json && cp -R src/__generated__ lib/__generated__",
     "migrations": "./migrations-cli/cli.ts"
   },
   "devDependencies": {

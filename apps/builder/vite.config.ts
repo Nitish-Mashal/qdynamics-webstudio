@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) => {
     process.env.COLLAB_RELAY_PROXY_TARGET ??
     env.COLLAB_RELAY_PROXY_TARGET ??
     "http://127.0.0.1:1999";
+  const useHttps = process.env.WSTD_DEV_HTTPS !== "false";
 
   return {
     plugins: [
@@ -130,10 +131,14 @@ export default defineConfig(({ mode }) => {
           ws: true,
         },
       },
-      https: {
-        key: readFileSync("../../https/privkey.pem"),
-        cert: readFileSync("../../https/fullchain.pem"),
-      },
+      ...(useHttps
+        ? {
+            https: {
+              key: readFileSync("../../https/privkey.pem"),
+              cert: readFileSync("../../https/fullchain.pem"),
+            },
+          }
+        : {}),
       cors: ((
         req: IncomingMessage,
         callback: (error: Error | null, options: CorsOptions | null) => void

@@ -93,7 +93,18 @@ export const Loading = ({ state }: { state: LoadingState }) => {
           gap="3"
           css={{ isolation: "isolate" }}
         >
-          <WebstudioIcon size={60} />
+          {/* <WebstudioIcon size={60} /> */}
+          <img
+            src="/images/Q_Logo.png"
+            alt="Quantumberg Logo"
+            width={60}
+            height={60}
+            style={{
+              width: 60,
+              height: 60,
+              objectFit: "contain",
+            }}
+          />
           <Progress value={fakeProgress} />
         </Flex>
       )}

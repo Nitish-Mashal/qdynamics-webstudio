@@ -33,7 +33,18 @@ export const ErrorMessage = ({
   return (
     <Grid className={pageStyle()} justify={"center"} gap={6}>
       <AccessibleIcon label="Logo">
-        <WebstudioIcon size="60" />
+        {/* <WebstudioIcon size="60" /> */}
+        <img
+          src="/images/Q_Logo.png"
+          alt="Quantumberg Logo"
+          width={60}
+          height={60}
+          style={{
+            width: 60,
+            height: 60,
+            objectFit: "contain",
+          }}
+        />
       </AccessibleIcon>
       <div />
       <div />

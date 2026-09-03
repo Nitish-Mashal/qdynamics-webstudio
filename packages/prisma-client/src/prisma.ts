@@ -1,4 +1,9 @@
-import { PrismaClient, Prisma } from "./__generated__";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const generated = require("./__generated__/index.js");
+
+const { PrismaClient, Prisma } = generated;
 
 export type {
   User,
@@ -13,22 +18,18 @@ export type {
   PublishStatus,
   Product,
   $Enums,
-} from "./__generated__";
+} from "./__generated__/index.js";
 
 export { Prisma };
+
 export const { PrismaClientKnownRequestError, Decimal } = Prisma;
+
+type PrismaClientInstance = InstanceType<typeof PrismaClient>;
 
 declare global {
   // allow global `var` declarations
   // eslint-disable-next-line no-var
-  var prisma:
-    | PrismaClient<
-        {
-          log: "query"[];
-        },
-        "query"
-      >
-    | undefined;
+  var prisma: PrismaClientInstance | undefined;
 }
 
 const logPrisma = process.env.NODE_ENV === "production";
@@ -53,9 +54,8 @@ export const createPrisma = ({
   });
 };
 
-// this fixes the issue with `warn(prisma-client) There are already 10 instances of Prisma Client actively running.`
-// explanation here
-// https://www.prisma.io/docs/guides/database/troubleshooting-orm/help-articles/nextjs-prisma-client-dev-practices
+// This fixes the issue with:
+// "There are already 10 instances of Prisma Client actively running."
 export const prisma =
   global.prisma ||
   new PrismaClient({
@@ -63,7 +63,6 @@ export const prisma =
       ? {
           log: [
             { emit: "event", level: "query" },
-
             {
               emit: "stdout",
               level: "error",
@@ -97,16 +96,15 @@ export const prisma =
   });
 
 prisma.$on("query", (error) => {
-  // Try to minify the query as vercel/new relic log size is limited
-
+  // Try to minify the query as Vercel/New Relic log size is limited
   console.info(
     "Query: " +
       error.query
-        .replace(/"public"\./g, "")
-        .replace(/"Project"\./g, "")
-        .replace(/"Build"\./g, "")
-        .replace(/"AuthorizationToken"\./g, "")
-        .replace(/"Asset"\./g, "")
+        .replace(/"public"./g, "")
+        .replace(/"Project"./g, "")
+        .replace(/"Build"./g, "")
+        .replace(/"AuthorizationToken"./g, "")
+        .replace(/"Asset"./g, "")
   );
 
   console.info("Params: " + error.params.slice(0, 200));

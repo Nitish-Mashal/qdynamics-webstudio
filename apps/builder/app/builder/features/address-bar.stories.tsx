@@ -89,7 +89,18 @@ export const AddressBar: StoryFn = () => {
       <TopbarLayout
         menu={
           <ToolbarButton aria-label="Menu">
-            <WebstudioIcon size={22} />
+            {/* <WebstudioIcon size={22} /> */}
+            <img
+              src="/images/Q_Logo.png"
+              alt="Quantumberg Logo"
+              width={22}
+              height={22}
+              style={{
+                width: 22,
+                height: 22,
+                objectFit: "contain",
+              }}
+            />
           </ToolbarButton>
         }
         left={<AddressBarPopover />}
