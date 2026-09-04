@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 const generated = require("./__generated__/index.js");
 
 const { PrismaClient, Prisma } = generated;
-
+import type { Prisma as PrismaTypes } from "./__generated__";
 export type {
   User,
   Build,
@@ -95,7 +95,7 @@ export const prisma =
         }),
   });
 
-prisma.$on("query", (error) => {
+prisma.$on("query", (error: PrismaTypes.QueryEvent) => {
   // Try to minify the query as Vercel/New Relic log size is limited
   console.info(
     "Query: " +

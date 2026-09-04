@@ -1,64 +1,10 @@
--- DropForeignKey
-ALTER TABLE "Project" DROP CONSTRAINT "Project_workspaceId_fkey";
-
--- DropForeignKey
-ALTER TABLE "WorkspaceMember" DROP CONSTRAINT "WorkspaceMember_userId_fkey";
-
--- DropForeignKey
-ALTER TABLE "WorkspaceMember" DROP CONSTRAINT "WorkspaceMember_workspaceId_fkey";
-
--- DropForeignKey
-ALTER TABLE "domainsVirtual" DROP CONSTRAINT "domainsVirtual_domainId_fkey";
-
--- DropForeignKey
-ALTER TABLE "domainsVirtual" DROP CONSTRAINT "domainsVirtual_projectId_fkey";
-
--- DropForeignKey
-ALTER TABLE "latestBuildVirtual" DROP CONSTRAINT "latestBuildVirtual_buildId_fkey";
-
--- DropForeignKey
-ALTER TABLE "latestBuildVirtual" DROP CONSTRAINT "latestBuildVirtual_domainsVirtualId_fkey";
-
--- DropForeignKey
-ALTER TABLE "latestBuildVirtual" DROP CONSTRAINT "latestBuildVirtual_projectId_fkey";
-
--- DropIndex
-DROP INDEX "WorkspaceMember_userId_idx";
-
--- AlterTable
-ALTER TABLE "AuthorizationToken" DROP COLUMN "canPublish";
-
--- AlterTable
-ALTER TABLE "Build" DROP COLUMN "isCleaned";
-
--- AlterTable
-ALTER TABLE "Notification" DROP CONSTRAINT "Notification_pkey",
-ALTER COLUMN "id" DROP DEFAULT,
-ALTER COLUMN "id" SET DATA TYPE TEXT,
-ADD CONSTRAINT "Notification_pkey" PRIMARY KEY ("id");
-
--- AlterTable
-ALTER TABLE "Project" ALTER COLUMN "workspaceId" SET DATA TYPE TEXT;
-
--- AlterTable
-ALTER TABLE "Workspace" DROP CONSTRAINT "Workspace_pkey",
-ALTER COLUMN "id" DROP DEFAULT,
-ALTER COLUMN "id" SET DATA TYPE TEXT,
-ADD CONSTRAINT "Workspace_pkey" PRIMARY KEY ("id");
-
--- AlterTable
-ALTER TABLE "WorkspaceMember" DROP CONSTRAINT "WorkspaceMember_pkey",
-ALTER COLUMN "workspaceId" SET DATA TYPE TEXT,
-ADD CONSTRAINT "WorkspaceMember_pkey" PRIMARY KEY ("workspaceId", "userId");
-
--- DropTable
-DROP TABLE "domainsVirtual";
-
--- DropTable
-DROP TABLE "latestBuildVirtual";
+-- Drop dependent views (will recreate below)
+DROP VIEW IF EXISTS "DashboardProject";
+DROP VIEW IF EXISTS "WorkspaceProjectAuthorization";
+DROP VIEW IF EXISTS published_builds;
 
 -- CreateTable
-CREATE TABLE "MarketplaceCategory" (
+CREATE TABLE IF NOT EXISTS "MarketplaceCategory" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -73,17 +19,63 @@ CREATE TABLE "MarketplaceCategory" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MarketplaceCategory_name_key" ON "MarketplaceCategory"("name");
+CREATE UNIQUE INDEX IF NOT EXISTS "MarketplaceCategory_name_key" ON "MarketplaceCategory"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MarketplaceCategory_slug_key" ON "MarketplaceCategory"("slug");
+CREATE UNIQUE INDEX IF NOT EXISTS "MarketplaceCategory_slug_key" ON "MarketplaceCategory"("slug");
 
--- CreateIndex
-CREATE UNIQUE INDEX "Workspace_userId_isDefault_key" ON "Workspace"("userId", "isDefault");
+-- Recreate dependent views
+CREATE VIEW published_builds AS
+SELECT
+  build.id AS "buildId",
+  build."projectId",
+  build."createdAt",
+  (
+    SELECT string_agg(list.value, ', ')
+    FROM jsonb_array_elements_text(build.deployment::jsonb -> 'domains') AS list(value)
+  ) AS domains
+FROM "Build" as build
+WHERE build.deployment IS NOT NULL
+ORDER BY build."projectId", build."createdAt" DESC;
 
--- AddForeignKey
-ALTER TABLE "Project" ADD CONSTRAINT "Project_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE VIEW "WorkspaceProjectAuthorization" AS
+SELECT w."userId",
+    p.id AS "projectId",
+    'own'::text AS relation
+   FROM "Workspace" w
+     JOIN "Project" p ON p."workspaceId" = w.id
+  WHERE w."isDeleted" = false AND p."isDeleted" = false
+UNION ALL
+ SELECT wm."userId",
+    p.id AS "projectId",
+    wm.relation::text AS relation
+   FROM "WorkspaceMember" wm
+     JOIN "Workspace" w ON w.id = wm."workspaceId"
+     JOIN "Project" p ON p."workspaceId" = wm."workspaceId"
+  WHERE wm."removedAt" IS NULL AND w."isDeleted" = false AND p."isDeleted" = false;
 
--- AddForeignKey
-ALTER TABLE "WorkspaceMember" ADD CONSTRAINT "WorkspaceMember_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
+CREATE VIEW "DashboardProject" AS
+SELECT
+  id,
+  title,
+  tags,
+  domain,
+  "userId",
+  "workspaceId",
+  "isDeleted",
+  "createdAt",
+  "previewImageAssetId",
+  "marketplaceApprovalStatus",
+  (
+    EXISTS (
+      SELECT
+        1
+      FROM
+        "Build"
+      WHERE
+        "Build"."projectId" = "Project".id
+        AND "Build".deployment IS NOT NULL
+    )
+  ) AS "isPublished"
+FROM
+  "Project";
