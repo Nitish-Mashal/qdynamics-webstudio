@@ -64,7 +64,7 @@ export function Navbar() {
           >
             <Link to="/marketplace/templates">Templates</Link>
             <Link to="/marketplace/categories">Categories</Link>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/marketplace/dashboard">Dashboard</Link>
           </div>
         )}
 
@@ -106,7 +106,7 @@ export function Navbar() {
             Categories
           </Link>
 
-          <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
+          <Link to="/marketplace/Dashboard" onClick={() => setMenuOpen(false)}>
             Dashboard
           </Link>
         </div>

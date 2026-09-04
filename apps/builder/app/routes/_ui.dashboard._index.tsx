@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import { ClientOnly } from "~/shared/client-only";
+
 export { ErrorBoundary } from "~/shared/error/error-boundary";
 
 const Dashboard = lazy(async () => {
