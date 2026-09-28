@@ -1,0 +1,1 @@
+-- This is a no-op migration. Database schema changes are handled by migration.ts.

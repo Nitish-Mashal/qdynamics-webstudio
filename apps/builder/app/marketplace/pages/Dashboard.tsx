@@ -83,7 +83,7 @@ export const Dashboard = () => {
               key={item}
               onClick={() => {
                 if (item === "My Templates") {
-                  navigate(dashboardPath("projects"));
+                  navigate("/marketplace");
                 }
 
                 if (item === "Dashboard") {
